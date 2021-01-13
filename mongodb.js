@@ -1,6 +1,6 @@
 const mongodb = require("mongodb");
 
-const MongoClient = mongodb.MongoClient;
+const { MongoClient, ObjectID } = mongodb;
 
 const connectionURL = "mongodb://127.0.0.1:27017";
 const databaseName = "task-manager";
@@ -16,23 +16,24 @@ MongoClient.connect(
     const db = client.db(databaseName);
 
     // db.collection("users")
-    //   .insertOne({
-    //     name: "UCylvester",
-    //     age: 23,
+    //   .updateOne(
+    //     {
+    //       _id: new ObjectID("5ff3a528375d3707d7c6813b"),
+    //     },
+    //     {
+    //       $set: {
+    //         name: "Emeka",
+    //       },
+    //     }
+    //   )
+    //   .then((data) => {
+    //     console.log(data);
     //   })
-    //   .then((result) => console.log({ ops: result.ops }))
-    //   .catch((error) => console.log("unable to insert user", error));
+    //   .catch((err) => console.log(err));
 
-    db.collection("users").insertMany(
-      [
-        { name: "Dan Eich", age: 23 },
-        { name: "stephen", age: 24 },
-      ],
-      (error, result) => {
-        if (error) return console.log("unable to insert users", error);
-
-        console.log(result.ops);
-      }
-    );
+    db.collection("users")
+      .deleteMany({ name: "UCylvester" })
+      .then(console.log)
+      .catch(console.log);
   }
 );

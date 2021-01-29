@@ -11,7 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongodb": "^3.6.3"
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.11.11",
+    "validator": "^13.5.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"

@@ -41,6 +41,7 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
+// POST ==> Logout user
 router.post("/users/logout", auth, async (req, res) => {
   const { user, token } = req;
   try {
@@ -59,7 +60,24 @@ router.post("/users/logout", auth, async (req, res) => {
       message: "Log out successfully!",
     });
   } catch (error) {
-    res.status(400).send({ status: res.statusCode, error });
+    res.status(500).send({ status: res.statusCode, error });
+  }
+});
+
+// POST ==> Logout all user sessions
+router.post("/users/logout-all", auth, async (req, res) => {
+  const { user } = req;
+  try {
+    user.tokens = [];
+
+    await user.save();
+
+    res.send({
+      status: res.statusCode,
+      message: "All sessions logged out successfully!",
+    });
+  } catch (error) {
+    res.status(500).send({ status: res.statusCode, error });
   }
 });
 

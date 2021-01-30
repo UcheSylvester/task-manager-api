@@ -3,8 +3,6 @@ const User = require("../db/models/user.model");
 const { JWT_SECRET_KEY } = require("../utils/utils");
 
 const auth = async (req, res, next) => {
-  console.log("Auth middleware");
-
   try {
     // Get token from header and decode it
     const token = req.header("Authorization").replace("Bearer ", "");
@@ -18,7 +16,7 @@ const auth = async (req, res, next) => {
 
     if (!user) throw new Error();
 
-    // return user as part of the req
+    req.token = token;
     req.user = user;
 
     next();

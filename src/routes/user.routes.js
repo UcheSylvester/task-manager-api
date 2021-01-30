@@ -41,6 +41,28 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
+router.post("/users/logout", auth, async (req, res) => {
+  const { user, token } = req;
+  try {
+    // Deleting the existing user token from the list of token
+    // invalidating the user session
+    const updatedTokens = user.tokens.filter(
+      ({ token: uToken }) => uToken !== token
+    );
+
+    user.tokens = updatedTokens;
+
+    await user.save();
+
+    res.send({
+      status: res.statusCode,
+      message: "Log out successfully!",
+    });
+  } catch (error) {
+    res.status(400).send({ status: res.statusCode, error });
+  }
+});
+
 // GET ==> all users
 router.get("/users", auth, async (req, res) => {
   try {

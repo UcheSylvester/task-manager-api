@@ -5,7 +5,7 @@ require("./db/mongoose");
 
 const User = require("./db/models/user.model");
 const Task = require("./db/models/task.model");
-const { formatResponse } = require("./utils/utils");
+const { checkIsUpdatesValid } = require("./utils/utils");
 
 const app = express();
 
@@ -69,19 +69,15 @@ app.patch("/users/:id", async (req, res) => {
   } = req;
 
   const allowedUpdates = ["name", "email", "password", "age"];
-  const updateKeys = Object.keys(body);
+  const updateIsValid = checkIsUpdatesValid(body, allowedUpdates);
 
-  const updateIsValid = updateKeys.every((update) =>
-    allowedUpdates.includes(update)
-  );
+  if (!updateIsValid)
+    return res.status(400).send({
+      status: res.statusCode,
+      error: `Invalid updates!`,
+    });
 
   try {
-    if (!updateIsValid)
-      return res.status(400).send({
-        status: res.statusCode,
-        error: `Invalid updates!`,
-      });
-
     const user = await User.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
@@ -134,6 +130,38 @@ app.get("/tasks/:id", async (req, res) => {
         .send({ status: res.statusCode, error: "Task not found" });
 
     res.send(task);
+  } catch (error) {
+    res.status(500).send({ status: res.statusCode, error });
+  }
+});
+
+// UPDATE ==> tasks/:id
+app.patch("/tasks/:id", async (req, res) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+
+  const allowedUpdates = ["description", "completed"];
+  const isUpdateValid = checkIsUpdatesValid(body, allowedUpdates);
+
+  if (!isUpdateValid)
+    return res
+      .status(400)
+      .send({ status: res.statusCode, error: "Invalid updates!" });
+
+  try {
+    const task = await Task.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!task)
+      return res
+        .status(404)
+        .send({ status: res.statusCode, error: "Task not found" });
+
+    res.send({ status: res.statusCode, data: task });
   } catch (error) {
     res.status(500).send({ status: res.statusCode, error });
   }

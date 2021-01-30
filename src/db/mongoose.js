@@ -10,6 +10,10 @@ mongoose.connect(uri, {
 
 const { connection } = mongoose;
 
+connection.on("error", (error) => {
+  console.log("An error occurred when connecting to DB", error);
+});
+
 connection.once("open", function () {
   console.log("MongoDB database connection established successfully");
 });

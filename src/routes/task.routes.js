@@ -7,10 +7,20 @@ const router = express.Router();
 
 // POST ==> tasks
 router.post("/tasks", async (req, res) => {
-  const task = new Task(req.body);
+  const { body } = req;
+  const { name } = body;
 
   try {
+    const existingTask = await Task.findOne({ name });
+
+    if (existingTask)
+      return res
+        .status(400)
+        .send({ status: res.statusCode, error: "Task already exits" });
+
+    const task = new Task(req.body);
     const newTask = await task.save();
+
     res.status(201).send({ status: res.statusCode, data: newTask });
   } catch (error) {
     res.status(400).send({ status: res.statusCode, error });
@@ -54,23 +64,27 @@ router.patch("/tasks/:id", async (req, res) => {
   } = req;
 
   const allowedUpdates = ["description", "completed"];
-  const isUpdateValid = checkIsUpdatesValid(body, allowedUpdates);
+  const updatesKeys = Object.keys(body);
+  const updateIsValid = checkIsUpdatesValid(updatesKeys, allowedUpdates);
 
-  if (!isUpdateValid)
+  if (!updateIsValid)
     return res
       .status(400)
       .send({ status: res.statusCode, error: "Invalid updates!" });
 
   try {
-    const task = await Task.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    const task = await Task.findById(id);
 
     if (!task)
       return res
         .status(404)
         .send({ status: res.statusCode, error: "Task not found" });
+
+    updatesKeys.forEach((update) => (task[update] = body[update]));
+
+    console.log({ task });
+
+    await task.save();
 
     res.send({ status: res.statusCode, data: task });
   } catch (error) {

@@ -66,8 +66,8 @@ router.patch("/users/:id", async (req, res) => {
   } = req;
 
   const allowedUpdates = ["name", "email", "password", "age"];
-  const updateIsValid = checkIsUpdatesValid(body, allowedUpdates);
   const updatesKeys = Object.keys(body);
+  const updateIsValid = checkIsUpdatesValid(updatesKeys, allowedUpdates);
 
   if (!updateIsValid)
     return res.status(400).send({

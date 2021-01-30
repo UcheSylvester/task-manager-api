@@ -5,9 +5,7 @@ const formatResponse = ({ isSuccess = true, status = 200, data }) => {
   };
 };
 
-const checkIsUpdatesValid = (body = {}, allowedUpdates = []) => {
-  const updatesKeys = Object.keys(body);
-
+const checkIsUpdatesValid = (updatesKeys = [], allowedUpdates = []) => {
   return updatesKeys.every((update) => allowedUpdates.includes(update));
 };
 

@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Middleware for authtentication and password encryption
+// Middleware for password encryption
 userSchema.pre("save", async function (next) {
   const user = this;
 

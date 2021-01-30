@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { options } = require("../../routes/user.routes");
+
+const JWT_SECRET_KEY = "JWT_AUTH_TOKEN";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -40,6 +44,15 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 // Middleware for hashing password before saving
@@ -57,7 +70,8 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// Attaching a function ==> findUserByCredentials (finds user and compares passwords) to userSchema so we can reuse it
+// Attaching a function to User Collection ==> findUserByCredentials
+// (finds user and compares passwords) to userSchema so we can reuse it
 userSchema.statics.findUserByCredentials = async (email, password) => {
   try {
     const user = await User.findOne({ email });
@@ -68,6 +82,25 @@ userSchema.statics.findUserByCredentials = async (email, password) => {
     if (!isMatch) throw new Error("Unauthorized");
 
     return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+// Attaching a function to user instance ==> generateAuthToken so it can be reused
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+
+  try {
+    const token = jwt.sign({ id: user._id.toString() }, JWT_SECRET_KEY, {
+      expiresIn: "7 days",
+    });
+
+    // Saving each token as part of then user object to keep track of login sessions on serveral devices
+    user.tokens = [...user.tokens, { token }];
+    await user.save();
+
+    return token;
   } catch (error) {
     throw new Error(error);
   }

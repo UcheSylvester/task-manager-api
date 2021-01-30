@@ -11,11 +11,13 @@ router.post("/users", async (req, res) => {
     const { body } = req;
 
     const user = new User(body);
+
     const savedUser = await user.save();
+    const token = await savedUser.generateAuthToken();
 
     res.status(201).send({
       status: res.statusCode,
-      data: savedUser,
+      data: { token, user: savedUser },
     });
   } catch (error) {
     res.status(400).send({ status: res.statusCode, error });
@@ -28,9 +30,13 @@ router.post("/users/login", async (req, res) => {
   try {
     const user = await User.findUserByCredentials(email, password);
 
-    res.send({ status: res.statusCode, data: user });
+    // Generating JWT Token for this user
+    const token = await user.generateAuthToken();
+
+    res.send({ status: res.statusCode, data: { token, user } });
   } catch (error) {
-    res.status(400).send({ status: res.statusCode, error: "Unauthorized" });
+    console.log({ error });
+    res.status(400).send({ status: res.statusCode, error });
   }
 });
 
@@ -51,8 +57,6 @@ router.get("/users/:id", async (req, res) => {
 
   try {
     const user = await User.findById(id);
-
-    console.log({ user, id });
 
     if (!user) return res.status(404).send("User not found");
 

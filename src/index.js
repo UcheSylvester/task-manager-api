@@ -41,9 +41,7 @@ app.get("/users", (req, res) => {
 app.get("/users/:id", (req, res) => {
   const { id } = req.params;
 
-  console.log({ id });
-
-  User.findOne({ _id: id })
+  User.findById(id)
     .then((user) => res.send(user))
     .catch((error) => res.status(400).send(error));
 });

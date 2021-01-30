@@ -6,6 +6,8 @@ require("./db/mongoose");
 const User = require("./db/models/user.model");
 const Task = require("./db/models/task.model");
 const { checkIsUpdatesValid } = require("./utils/utils");
+const { response } = require("express");
+const { findByIdAndDelete } = require("./db/models/user.model");
 
 const app = express();
 
@@ -19,7 +21,10 @@ app.post("/users", async (req, res) => {
     const { email } = req.body;
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).send("User already existing");
+    if (existingUser)
+      return res
+        .status(400)
+        .send({ status: res.statusCode, error: "User already existing" });
 
     const user = new User(req.body);
     const savedUser = await user.save();
@@ -29,7 +34,7 @@ app.post("/users", async (req, res) => {
       data: savedUser,
     });
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ status: res.statusCode, error });
   }
 });
 
@@ -38,7 +43,7 @@ app.get("/users", async (req, res) => {
   try {
     const users = await User.find({});
 
-    res.send(users);
+    res.send({ status: res.statusCode, data: users });
   } catch (error) {
     res.status(500).send(error);
   }
@@ -91,6 +96,24 @@ app.patch("/users/:id", async (req, res) => {
     res.send({ status: res.statusCode, data: user });
   } catch (error) {
     res.status(400).send({ status: res.statusCode, error });
+  }
+});
+
+// DELETE ==> user/:id
+app.delete("/users/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user)
+      return res
+        .status(404)
+        .send({ status: res.statusCode, error: "User not found" });
+
+    res.send({ status: res.statusCode, data: user });
+  } catch (error) {
+    res.status(500).send({ status: res.statusCode, error });
   }
 });
 
@@ -162,6 +185,26 @@ app.patch("/tasks/:id", async (req, res) => {
         .send({ status: res.statusCode, error: "Task not found" });
 
     res.send({ status: res.statusCode, data: task });
+  } catch (error) {
+    res.status(500).send({ status: res.statusCode, error });
+  }
+});
+
+// DELETE ==> tasks/:id
+app.delete("/tasks/:id", async (req, res) => {
+  const {
+    params: { id },
+  } = req;
+
+  try {
+    const task = await Task.findByIdAndDelete(id);
+
+    if (!task)
+      return res
+        .status(404)
+        .send({ status: res.statusCode, error: "Task not found" });
+
+    res.send({ status: res.statusCode, message: "Task deleted successfully!" });
   } catch (error) {
     res.status(500).send({ status: res.statusCode, error });
   }

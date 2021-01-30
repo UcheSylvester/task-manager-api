@@ -5,18 +5,10 @@ const { checkIsUpdatesValid } = require("../utils/utils");
 
 const router = express.Router();
 
-// POST ==> users
+// POST ==> create users
 router.post("/users", async (req, res) => {
   try {
     const { body } = req;
-    const { email } = body;
-
-    const existingUser = await User.findOne({ email });
-
-    if (existingUser)
-      return res
-        .status(400)
-        .send({ status: res.statusCode, error: "User already exists" });
 
     const user = new User(body);
     const savedUser = await user.save();
@@ -27,6 +19,18 @@ router.post("/users", async (req, res) => {
     });
   } catch (error) {
     res.status(400).send({ status: res.statusCode, error });
+  }
+});
+
+// POST ==> Login user
+router.post("/users/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findUserByCredentials(email, password);
+
+    res.send({ status: res.statusCode, data: user });
+  } catch (error) {
+    res.status(400).send({ status: res.statusCode, error: "Unauthorized" });
   }
 });
 

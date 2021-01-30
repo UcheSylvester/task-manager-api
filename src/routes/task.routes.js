@@ -5,7 +5,7 @@ const { checkIsUpdatesValid } = require("../utils/utils");
 
 const router = express.Router();
 
-// POST ==> tasks
+// POST ==> create tasks
 router.post("/tasks", async (req, res) => {
   const { body } = req;
   const { name } = body;

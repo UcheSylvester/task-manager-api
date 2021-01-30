@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
 
   email: {
     type: String,
+    unique: true,
     lowercase: true,
     validate(value) {
       if (!validator.isEmail(value)) {
@@ -41,7 +42,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Middleware for password encryption
+// Middleware for hashing password before saving
 userSchema.pre("save", async function (next) {
   const user = this;
 
@@ -50,12 +51,27 @@ userSchema.pre("save", async function (next) {
     const { password } = user;
 
     const hashedPassword = await bcrypt.hash(password, 8);
-
     user.password = hashedPassword;
   }
 
   next();
 });
+
+// Attaching a function ==> findUserByCredentials (finds user and compares passwords) to userSchema so we can reuse it
+userSchema.statics.findUserByCredentials = async (email, password) => {
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) throw new Error("Unauthorized");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Unauthorized");
+
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
 
 const User = mongoose.model("User", userSchema);
 

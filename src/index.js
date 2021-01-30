@@ -14,10 +14,13 @@ app.use(express.json());
 
 // POST ==> users
 app.post("/users", async (req, res) => {
-  const { body } = req;
-  const user = new User(body);
-
   try {
+    const { email } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).send("User already existing");
+
+    const user = new User(req.body);
     const savedUser = await user.save();
 
     res.status(201).send(savedUser);

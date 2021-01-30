@@ -41,7 +41,7 @@ router.post("/users/login", async (req, res) => {
   }
 });
 
-// GET ==> users
+// GET ==> all users
 router.get("/users", auth, async (req, res) => {
   try {
     const users = await User.find({});
@@ -49,6 +49,16 @@ router.get("/users", auth, async (req, res) => {
     res.send({ status: res.statusCode, data: users });
   } catch (error) {
     res.status(500).send(error);
+  }
+});
+
+// GET ==> get user profile
+router.get("/users/profile", auth, async (req, res) => {
+  const { user } = req;
+  try {
+    res.send({ status: res.statusCode, data: user });
+  } catch (error) {
+    res.status(500).send({ status: res.statusCode, error });
   }
 });
 

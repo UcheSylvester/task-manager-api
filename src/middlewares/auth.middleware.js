@@ -16,8 +16,6 @@ const auth = async (req, res, next) => {
     // making sure only authenticated devices/tokens can access protected routes
     const user = await User.findOne({ _id: id, "tokens.token": token });
 
-    console.log({ token, user });
-
     if (!user) throw new Error();
 
     // return user as part of the req

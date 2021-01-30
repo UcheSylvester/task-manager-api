@@ -1,6 +1,7 @@
 const express = require("express");
 
 const User = require("../db/models/user.model");
+const auth = require("../middlewares/auth.middleware");
 const { checkIsUpdatesValid } = require("../utils/utils");
 
 const router = express.Router();
@@ -41,7 +42,7 @@ router.post("/users/login", async (req, res) => {
 });
 
 // GET ==> users
-router.get("/users", async (req, res) => {
+router.get("/users", auth, async (req, res) => {
   try {
     const users = await User.find({});
 
@@ -52,7 +53,7 @@ router.get("/users", async (req, res) => {
 });
 
 // GET ==> users/:id
-router.get("/users/:id", async (req, res) => {
+router.get("/users/:id", auth, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -67,7 +68,7 @@ router.get("/users/:id", async (req, res) => {
 });
 
 // UPDATE ==> users/:id
-router.patch("/users/:id", async (req, res) => {
+router.patch("/users/:id", auth, async (req, res) => {
   const {
     body,
     params: { id },
@@ -84,7 +85,7 @@ router.patch("/users/:id", async (req, res) => {
     });
 
   try {
-    // NB: findByIdAndUpdate bypasses middlewares so we findById and update;
+    // findByIdAndUpdate bypasses middlewares so we use findById and update;
     const user = await User.findById(id);
 
     if (!user)

@@ -75,8 +75,6 @@ app.patch("/users/:id", async (req, res) => {
     allowedUpdates.includes(update)
   );
 
-  console.log({ updateIsValid, body });
-
   try {
     if (!updateIsValid)
       return res.status(400).send({
@@ -106,9 +104,9 @@ app.post("/tasks", async (req, res) => {
 
   try {
     const newTask = await task.save();
-    res.status(201).send(newTask);
+    res.status(201).send({ status: res.statusCode, data: newTask });
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send({ status: res.statusCode, error });
   }
 });
 
@@ -117,9 +115,9 @@ app.get("/tasks", async (req, res) => {
   try {
     const tasks = await Task.find({});
 
-    res.send(tasks);
+    res.send({ status: res.statusCode, data: tasks });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ status: res.statusCode, error });
   }
 });
 
@@ -130,11 +128,14 @@ app.get("/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findById(id);
 
-    if (!task) return res.status(404).send("Task not found");
+    if (!task)
+      return res
+        .status(404)
+        .send({ status: res.statusCode, error: "Task not found" });
 
     res.send(task);
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ status: res.statusCode, error });
   }
 });
 

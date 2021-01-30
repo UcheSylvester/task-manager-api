@@ -49,14 +49,10 @@ const User = mongoose.model("User", {
 });
 
 const Task = mongoose.model("Task", {
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
   description: {
     type: String,
     trim: true,
+    required: true,
   },
   completed: {
     type: Boolean,
@@ -76,7 +72,6 @@ const newUser = new User({
 //   .catch((error) => console.log({ error }));
 
 const newTask = new Task({
-  name: "New Task 2",
   description: "First task of the day      ",
   completed: false,
 });

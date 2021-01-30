@@ -21,7 +21,7 @@ const auth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(500).send({ status: res.statusCode, error: "Unauthenticated" });
+    res.status(401).send({ status: res.statusCode, error: "Unauthenticated" });
   }
 };
 

@@ -7,3 +7,11 @@ mongoose.connect(uri, {
   useCreateIndex: true,
   useUnifiedTopology: true,
 });
+
+const { connection } = mongoose;
+
+console.log({ connection });
+
+connection.once("open", function () {
+  console.log("MongoDB database connection established successfully");
+});

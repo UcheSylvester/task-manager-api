@@ -8,15 +8,17 @@ const router = express.Router();
 // POST ==> users
 router.post("/users", async (req, res) => {
   try {
-    const { email } = req.body;
+    const { body } = req;
+    const { email } = body;
 
     const existingUser = await User.findOne({ email });
+
     if (existingUser)
       return res
         .status(400)
-        .send({ status: res.statusCode, error: "User already existing" });
+        .send({ status: res.statusCode, error: "User already exists" });
 
-    const user = new User(req.body);
+    const user = new User(body);
     const savedUser = await user.save();
 
     res.status(201).send({
@@ -65,6 +67,7 @@ router.patch("/users/:id", async (req, res) => {
 
   const allowedUpdates = ["name", "email", "password", "age"];
   const updateIsValid = checkIsUpdatesValid(body, allowedUpdates);
+  const updatesKeys = Object.keys(body);
 
   if (!updateIsValid)
     return res.status(400).send({
@@ -73,15 +76,17 @@ router.patch("/users/:id", async (req, res) => {
     });
 
   try {
-    const user = await User.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    // NB: findByIdAndUpdate bypasses middlewares so we findById and update;
+    const user = await User.findById(id);
 
     if (!user)
       return res
         .status(404)
         .send({ status: res.statusCode, error: "User not found" });
+
+    updatesKeys.forEach((update) => (user[update] = body[update]));
+
+    await user.save();
 
     res.send({ status: res.statusCode, data: user });
   } catch (error) {

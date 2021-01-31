@@ -97,7 +97,7 @@ userSchema.statics.findUserByCredentials = async (email, password) => {
 
     return user;
   } catch (error) {
-    throw new Error(error);
+    throw new Error();
   }
 };
 

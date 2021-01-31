@@ -27,21 +27,25 @@ router.post("/tasks", auth, async (req, res) => {
 router.get("/tasks", auth, async (req, res) => {
   const {
     user,
-    query: { completed },
+    query: { completed, limit = 10, skip = 0 },
   } = req;
 
-  const match = {
-    ...(completed &&
-      (completed === "true"
-        ? { completed: true }
-        : completed === "false" && { completed: false })),
-  };
+  const match = {};
+
+  if (completed) {
+    match.completed =
+      completed === "true" ? true : completed === "false" && false;
+  }
 
   try {
     await user
       .populate({
         path: "tasks",
         match,
+        options: {
+          limit: +limit,
+          skip: +skip,
+        },
       })
       .execPopulate();
 

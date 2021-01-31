@@ -164,8 +164,6 @@ router.post(
 
     const savedUser = await user.save();
 
-    console.log({ user, file, savedUser });
-
     res.send({ status: res.statusCode, data: savedUser });
   },
   (error, req, res, next) => {

@@ -30,9 +30,9 @@ router.post("/users/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findUserByCredentials(email, password);
-
-    // Generating JWT Token for this user
     const token = await user.generateAuthToken();
+
+    console.log({ user, token });
 
     res.send({ status: res.statusCode, data: { token, user } });
   } catch (error) {

@@ -53,36 +53,18 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-// Middleware for hashing password before saving
-userSchema.pre("save", async function (next) {
+// Hiding private data (password and tokens) in the user response;
+userSchema.methods.toJSON = function () {
   const user = this;
 
-  // Hash password only when is part of what was modified (mainly on registration and updating password)
-  if (user.isModified("password")) {
-    const { password } = user;
+  const userObj = user.toObject();
 
-    const hashedPassword = await bcrypt.hash(password, 8);
-    user.password = hashedPassword;
-  }
+  delete userObj.password;
+  delete userObj.tokens;
 
-  next();
-});
+  console.log({ userObj });
 
-// Attaching a function to User Collection ==> findUserByCredentials
-// (finds user and compares passwords) to userSchema so we can reuse it
-userSchema.statics.findUserByCredentials = async (email, password) => {
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) throw new Error("Unauthorized");
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new Error("Unauthorized");
-
-    return user;
-  } catch (error) {
-    throw new Error(error);
-  }
+  return userObj;
 };
 
 // Attaching a function to user instance ==> generateAuthToken so it can be reused
@@ -103,6 +85,38 @@ userSchema.methods.generateAuthToken = async function () {
     throw new Error(error);
   }
 };
+
+// Attaching a function to User Collection ==> findUserByCredentials
+// (finds user and compares passwords) to userSchema so we can reuse it
+userSchema.statics.findUserByCredentials = async (email, password) => {
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) throw new Error("Unauthorized");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Unauthorized");
+
+    return user;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+// Middleware for hashing password before saving
+userSchema.pre("save", async function (next) {
+  const user = this;
+
+  // Hash password only when is part of what was modified (mainly on registration and updating password)
+  if (user.isModified("password")) {
+    const { password } = user;
+
+    const hashedPassword = await bcrypt.hash(password, 8);
+    user.password = hashedPassword;
+  }
+
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

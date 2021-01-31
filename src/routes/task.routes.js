@@ -27,15 +27,23 @@ router.post("/tasks", auth, async (req, res) => {
 router.get("/tasks", auth, async (req, res) => {
   const {
     user,
-    query: { completed, limit = 10, skip = 0 },
+    query: { completed, limit = 10, skip = 0, sortBy },
   } = req;
 
   const match = {};
+  const sort = {};
 
   if (completed) {
     match.completed =
       completed === "true" ? true : completed === "false" && false;
   }
+
+  if (sortBy && sortBy.includes(":")) {
+    const [key, value] = sortBy.split(":");
+    sort[key] = value === "desc" ? -1 : 1;
+  }
+
+  console.log({ sort, sortBy });
 
   try {
     await user
@@ -45,6 +53,7 @@ router.get("/tasks", auth, async (req, res) => {
         options: {
           limit: +limit,
           skip: +skip,
+          sort,
         },
       })
       .execPopulate();

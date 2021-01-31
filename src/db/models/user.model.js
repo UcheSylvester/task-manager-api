@@ -5,54 +5,57 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET_KEY } = require("../../utils/utils");
 const Task = require("./task.model");
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  email: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email is invalid");
-      }
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
-  },
 
-  password: {
-    type: String,
-    required: true,
-    minLength: 7,
-    validate(value) {
-      if (validator.contains(value, "password", { ignoreCase: true })) {
-        throw new Error("Password cannot contain 'password'");
-      }
-    },
-  },
-
-  age: {
-    type: Number,
-    default: 0,
-    validate: (value) => {
-      if (value < 0) {
-        throw new Error("Age must be a positive number");
-      }
-    },
-  },
-
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
+    email: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email is invalid");
+        }
       },
     },
-  ],
-});
+
+    password: {
+      type: String,
+      required: true,
+      minLength: 7,
+      validate(value) {
+        if (validator.contains(value, "password", { ignoreCase: true })) {
+          throw new Error("Password cannot contain 'password'");
+        }
+      },
+    },
+
+    age: {
+      type: Number,
+      default: 0,
+      validate: (value) => {
+        if (value < 0) {
+          throw new Error("Age must be a positive number");
+        }
+      },
+    },
+
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 // Setting up a virtual property to get all tasks created by a user
 userSchema.virtual("tasks", {

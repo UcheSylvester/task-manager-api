@@ -2,30 +2,33 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const taskSchema = new Schema({
-  name: {
-    type: String,
-    trim: true,
-    required: true,
-  },
+const taskSchema = new Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+      required: true,
+    },
 
-  description: {
-    type: String,
-    trim: true,
-    default: "",
-  },
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
 
-  completed: {
-    type: Boolean,
-    default: false,
-  },
+    completed: {
+      type: Boolean,
+      default: false,
+    },
 
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: "User",
+    owner: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
   },
-});
+  { timestamps: true }
+);
 
 const Task = mongoose.model("Task", taskSchema);
 

@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+
+    avatar: {
+      file: Buffer,
+    },
   },
   { timestamps: true }
 );

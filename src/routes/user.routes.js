@@ -5,8 +5,6 @@ const User = require("../db/models/user.model");
 const auth = require("../middlewares/auth.middleware");
 const { checkIsUpdatesValid } = require("../utils/utils");
 
-const upload = multer({ dest: "images" });
-
 const router = express.Router();
 
 // POST ==> create users
@@ -142,9 +140,37 @@ router.patch("/users/profile", auth, async (req, res) => {
   }
 });
 
-// POST ==> user/profile/avatar
-router.post("/users/profile/avatar", upload.single("avatar"), (req, res) => {
-  res.send();
+const upload = multer({
+  limits: {
+    fileSize: 1_000_000,
+  },
+  fileFilter(req, file, cb) {
+    const { originalname } = file;
+
+    if (!originalname.match(/\.(jpg|jpeg|png)$/))
+      return cb(new Error("Please upload a PNG, JPEG | JPG image"));
+
+    cb(undefined, true);
+  },
 });
+// POST ==> user/profile/avatar
+router.post(
+  "/users/profile/avatar",
+  auth,
+  upload.single("avatar"),
+  async (req, res) => {
+    const { user, file } = req;
+    user.avatar = file.buffer;
+
+    const savedUser = await user.save();
+
+    console.log({ user, file, savedUser });
+
+    res.send({ status: res.statusCode, data: savedUser });
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
 
 module.exports = router;

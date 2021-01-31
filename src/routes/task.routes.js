@@ -43,8 +43,6 @@ router.get("/tasks", auth, async (req, res) => {
     sort[key] = value === "desc" ? -1 : 1;
   }
 
-  console.log({ sort, sortBy });
-
   try {
     await user
       .populate({

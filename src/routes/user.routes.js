@@ -1,8 +1,11 @@
 const express = require("express");
 
+const multer = require("multer");
 const User = require("../db/models/user.model");
 const auth = require("../middlewares/auth.middleware");
 const { checkIsUpdatesValid } = require("../utils/utils");
+
+const upload = multer({ dest: "images" });
 
 const router = express.Router();
 
@@ -137,6 +140,11 @@ router.patch("/users/profile", auth, async (req, res) => {
   } catch (error) {
     res.status(400).send({ status: res.statusCode, error });
   }
+});
+
+// POST ==> user/profile/avatar
+router.post("/users/profile/avatar", upload.single("avatar"), (req, res) => {
+  res.send();
 });
 
 module.exports = router;

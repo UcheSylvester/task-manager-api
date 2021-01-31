@@ -26,12 +26,26 @@ router.post("/tasks", auth, async (req, res) => {
 // GET ==> tasks
 router.get("/tasks", auth, async (req, res) => {
   const {
-    user: { _id },
+    user,
+    query: { completed },
   } = req;
-  try {
-    const tasks = await Task.find({ owner: _id });
 
-    res.send({ status: res.statusCode, data: tasks });
+  const match = {
+    ...(completed &&
+      (completed === "true"
+        ? { completed: true }
+        : completed === "false" && { completed: false })),
+  };
+
+  try {
+    await user
+      .populate({
+        path: "tasks",
+        match,
+      })
+      .execPopulate();
+
+    res.send({ status: res.statusCode, data: user.tasks });
   } catch (error) {
     res.status(500).send({ status: res.statusCode, error });
   }

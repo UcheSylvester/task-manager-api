@@ -53,6 +53,13 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+// Setting up a virtual property to get all tasks created by a user
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 // Hiding private data (password and tokens) in the user response;
 userSchema.methods.toJSON = function () {
   const user = this;
